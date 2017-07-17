@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace Algorithm
 {
-
     public class Sort
     {
         public enum Sequence
@@ -29,24 +28,50 @@ namespace Algorithm
                 swapped = false;
                 for (int j = 0; j < arr.Length - 1 - i; j++)
                 {
-                    if (s == Sequence.Increase)
+                    if (s == Sequence.Increase ? arr[j].CompareTo(arr[j + 1]) > 0 : arr[j].CompareTo(arr[j + 1]) < 0)
                     {
-                        if (arr[j].CompareTo(arr[j + 1]) > 0)
-                        {
-                            Tool.Swap(ref arr[j], ref arr[j + 1]);
-                            if (!swapped) swapped = true;
-                        }
+                        Tool.Swap(ref arr[j], ref arr[j + 1]);
+                        if (!swapped) swapped = true;
                     }
-                    else
-                    {
-                        if (arr[j].CompareTo(arr[j + 1]) < 0)
-                        {
-                            Tool.Swap(ref arr[j], ref arr[j + 1]);
-                            if (!swapped) swapped = true;
-                        }
-                    }
+
                 }
                 if (!swapped) return;
+            }
+        }
+
+        /// <summary>
+        /// 鸡尾酒排序 —— 稳定 —— 最坏O(n^2) —— 平均O(n^2)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="s"></param>
+        public static void Cocktail<T>(T[] arr, Sequence s = Sequence.Increase) where T : IComparable<T>
+        {
+            int left = 0;
+            int right = arr.Length - 1;
+            bool swapped = true;
+
+            while (swapped)
+            {
+                swapped = false;
+                for (int i = left; i < right; i++)
+                {
+                    if (s == Sequence.Increase ? arr[i].CompareTo(arr[i + 1]) > 0 : arr[i].CompareTo(arr[i + 1]) < 0)
+                    {
+                        Tool.Swap(ref arr[i], ref arr[i + 1]);
+                        if (!swapped) swapped = true;
+                    }
+                }
+                right--;
+                for (int i = right; i > left; i--)
+                {
+                    if (s == Sequence.Increase ? arr[i - 1].CompareTo(arr[i]) > 0 : arr[i - 1].CompareTo(arr[i]) < 0)
+                    {
+                        Tool.Swap(ref arr[i - 1], ref arr[i]);
+                        if (!swapped) swapped = true;
+                    }
+                }
+                left++;
             }
         }
 
@@ -65,40 +90,11 @@ namespace Algorithm
             {
                 insert = arr[i];
                 j = i - 1;
-                if (s == Sequence.Increase)
-                    for (; j >= 0 && insert.CompareTo(arr[j]) < 0; j--)
-                        arr[j + 1] = arr[j];
-                else
-                    for (; j >= 0 && insert.CompareTo(arr[j]) > 0; j--)
-                        arr[j + 1] = arr[j];
+
+                for (; j >= 0 && (s == Sequence.Increase ? insert.CompareTo(arr[j]) < 0 : insert.CompareTo(arr[j]) > 0); j--)
+                    arr[j + 1] = arr[j];
 
                 arr[j + 1] = insert;
-            }
-        }
-
-        /// <summary>
-        /// 选择排序 —— 不稳定 —— 最坏O(n^2) —— 平均O(n^2)
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="arr"></param>
-        /// <param name="s"></param>
-        public static void Selection<T>(T[] arr, Sequence s = Sequence.Increase) where T : IComparable<T>
-        {
-            for (int i = 0; i < arr.Length; i++)
-            {
-                int swapIndex = i;
-                for (int j = i + 1; j < arr.Length; j++)
-                {
-                    if (s == Sequence.Increase)
-                    {
-                        if (arr[swapIndex].CompareTo(arr[j]) > 0) swapIndex = j;
-                    }
-                    else
-                    {
-                        if (arr[swapIndex].CompareTo(arr[j]) < 0) swapIndex = j;
-                    }
-                }
-                if (swapIndex != i) Tool.Swap(ref arr[i], ref arr[swapIndex]);
             }
         }
 
@@ -122,17 +118,34 @@ namespace Algorithm
                 {
                     insert = arr[i];
                     j = i - gap;
-                    if (s == Sequence.Increase)
-                        for (; j >= 0 && insert.CompareTo(arr[j]) < 0; j -= gap)
-                            arr[j + gap] = arr[j];
-                    else
-                        for (; j >= 0 && insert.CompareTo(arr[j]) > 0; j -= gap)
-                            arr[j + gap] = arr[j];
+
+                    for (; j >= 0 && (s == Sequence.Increase ? insert.CompareTo(arr[j]) < 0 : insert.CompareTo(arr[j]) > 0); j -= gap)
+                        arr[j + gap] = arr[j];
 
                     arr[j + gap] = insert;
                 }
             }
 
+        }
+
+        /// <summary>
+        /// 选择排序 —— 不稳定 —— 最坏O(n^2) —— 平均O(n^2)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="s"></param>
+        public static void Selection<T>(T[] arr, Sequence s = Sequence.Increase) where T : IComparable<T>
+        {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                int swapIndex = i;
+                for (int j = i + 1; j < arr.Length; j++)
+                {
+                    if (s == Sequence.Increase ? arr[swapIndex].CompareTo(arr[j]) > 0 : arr[swapIndex].CompareTo(arr[j]) < 0)
+                        swapIndex = j;
+                }
+                if (swapIndex != i) Tool.Swap(ref arr[i], ref arr[swapIndex]);
+            }
         }
 
         /// <summary>
@@ -218,6 +231,40 @@ namespace Algorithm
             }
 
             return sorted;
+        }
+
+        /// <summary>
+        /// 归并排序 —— 稳定 —— 最坏O(nlogn) —— 平均O(nlogn)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="s"></param>
+        public static void Merge<T>(T[] arr, Sequence s = Sequence.Increase) where T : IComparable<T>
+        {
+            T[] copy = new T[arr.Length];
+
+            for (int seg = 1; seg < arr.Length; seg += seg)
+            {
+                for (int start = 0; start < arr.Length; start += seg + seg)
+                {
+                    int low = start;
+                    int mid = Tool.Min(start + seg, arr.Length);
+                    int high = Tool.Min(start + seg + seg, arr.Length);
+                    int k = low;
+
+                    int start1 = low, end1 = mid;
+                    int start2 = mid, end2 = high;
+
+                    while (start1 < end1 && start2 < end2)
+                        copy[k++] = (s == Sequence.Increase ? arr[start1].CompareTo(arr[start2]) < 0 : arr[start1].CompareTo(arr[start2]) > 0) ?
+                            arr[start1++] : arr[start2++];
+                    while (start1 < end1)
+                        copy[k++] = arr[start1++];
+                    while (start2 < end2)
+                        copy[k++] = arr[start2++];
+                }
+                Tool.Swap(ref arr, ref copy);
+            }
         }
     }
 }
