@@ -353,5 +353,40 @@ namespace Algorithm
 
             return MergeRecursive(left, right, s);
         }
+
+        /// <summary>
+        /// 基数排序 —— 稳定 —— 最坏O(kn) K表示待排序中最大的数的位数
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="s"></param>
+        public static void Radix(int[] arr, Sequence s = Sequence.Increase)
+        {
+            int maxbit = Tool.MaxBit(arr);
+            int[] copy = new int[arr.Length];
+            int[] count = new int[10];
+
+            int radix = 1;
+
+            for (int i = 0; i < maxbit; i++)
+            {
+                count.Initialize();
+                for (int j = 0; j < arr.Length; j++)
+                    count[(arr[j] / radix) % 10]++;
+
+                for (int j = 1; j < count.Length; j++)
+                    count[j] += count[j - 1];
+
+                for (int j = arr.Length - 1; j >= 0; j--)
+                {
+                    int index = count[(arr[j] / radix) % 10]-- - 1;
+                    if (s == Sequence.Decrease) index = copy.Length - 1 - index;
+                    copy[index] = arr[j];
+                }
+
+                copy.CopyTo(arr, 0);
+                radix *= 10;
+            }
+        }
     }
 }

@@ -46,6 +46,24 @@ namespace Algorithm
         {
             return a.CompareTo(b) > 0 ? a : b;
         }
+
+        public static int MaxBit(int[] arr)
+        {
+            int max = arr[0];
+            foreach (var item in arr)
+            {
+                if (max < item) max = item;
+            }
+
+            int bit = 0;
+            while (max >= 1)
+            {
+                max /= 10;
+                bit++;
+            }
+            
+            return bit;
+        }
     }
 
 }
