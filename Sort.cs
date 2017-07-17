@@ -149,7 +149,7 @@ namespace Algorithm
         }
 
         /// <summary>
-        /// 快速排序 —— 不稳定 —— 最坏O(n^2) —— 平均O(nlogn)
+        /// 快速排序（递归版） —— 不稳定 —— 最坏O(n^2) —— 平均O(nlogn)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="arr"></param>
@@ -179,15 +179,54 @@ namespace Algorithm
                 Tool.Swap(ref arr[i], ref arr[j]);
             }
 
-            if (s == Sequence.Increase)
+            Quick(arr, left, i - 1, s);
+            Quick(arr, j + 1, right, s);
+        }
+
+        /// <summary>
+        /// 快速排序（迭代版）
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="s"></param>
+        public static void Quick<T>(T[] arr, Sequence s = Sequence.Increase) where T : IComparable<T>
+        {
+            if (arr.Length <= 0) return;
+            Stack<Range> range = new Stack<Range>();
+            range.Push(new Range(0, arr.Length - 1));
+
+            while (range.Count > 0)
             {
-                Quick(arr, left, i - 1);
-                Quick(arr, j + 1, right);
-            }
-            else
-            {
-                Quick(arr, left, i - 1, Sequence.Decrease);
-                Quick(arr, j + 1, right, Sequence.Decrease);
+                Range r = range.Pop();
+
+                if (r.min >= r.max) continue;
+                T mid = arr[r.max];
+                int left = r.min;
+                int right = r.max - 1;
+
+                while (left < right)
+                {
+                    if (s == Sequence.Increase)
+                    {
+                        while (arr[left].CompareTo(mid) < 0 && left < right) left++;
+                        while (arr[right].CompareTo(mid) >= 0 && left < right) right--;
+                    }
+                    else
+                    {
+                        while (arr[left].CompareTo(mid) > 0 && left < right) left++;
+                        while (arr[right].CompareTo(mid) <= 0 && left < right) right--;
+                    }
+
+                    Tool.Swap(ref arr[left], ref arr[right]);
+                }
+
+                if (s == Sequence.Increase ? arr[left].CompareTo(arr[r.max]) >= 0 : arr[left].CompareTo(arr[r.max]) <= 0)
+                    Tool.Swap(ref arr[left], ref arr[r.max]);
+                else
+                    left++;
+
+                range.Push(new Range(r.min, left - 1));
+                range.Push(new Range(left + 1, r.max));
             }
         }
 
@@ -234,7 +273,7 @@ namespace Algorithm
         }
 
         /// <summary>
-        /// 归并排序 —— 稳定 —— 最坏O(nlogn) —— 平均O(nlogn)
+        /// 归并排序（迭代版） —— 稳定 —— 最坏O(nlogn) —— 平均O(nlogn)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="arr"></param>
@@ -265,6 +304,54 @@ namespace Algorithm
                 }
                 Tool.Swap(ref arr, ref copy);
             }
+        }
+
+        /// <summary>
+        /// 归并排序（递归版） —— 合并
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static Queue<T> MergeRecursive<T>(Queue<T> left, Queue<T> right, Sequence s = Sequence.Increase) where T : IComparable<T>
+        {
+            Queue<T> merge = new Queue<T>();
+
+            while (left.Count > 0 && right.Count > 0)
+                merge.Enqueue(
+                    (s == Sequence.Increase ? left.Peek().CompareTo(right.Peek()) > 0 : left.Peek().CompareTo(right.Peek()) < 0) ?
+                    right.Dequeue() : left.Dequeue());
+            while (left.Count > 0) merge.Enqueue(left.Dequeue());
+            while (right.Count > 0) merge.Enqueue(right.Dequeue());
+
+            return merge;
+        }
+
+        /// <summary>
+        /// 归并排序（递归版） —— 分割
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arr"></param>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        public static Queue<T> MergeRecursive<T>(Queue<T> arr, Sequence s = Sequence.Increase) where T : IComparable<T>
+        {
+            if (arr.Count < 2)
+                return arr;
+
+            Queue<T> left = new Queue<T>();
+            Queue<T> right = new Queue<T>();
+
+            int mid = arr.Count / 2;
+
+            for (int i = 0; i < mid; i++) left.Enqueue(arr.Dequeue());
+            while (arr.Count > 0) right.Enqueue(arr.Dequeue());
+
+            left = MergeRecursive(left, s);
+            right = MergeRecursive(right, s);
+
+            return MergeRecursive(left, right, s);
         }
     }
 }

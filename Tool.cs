@@ -6,6 +6,18 @@ using System.Threading.Tasks;
 
 namespace Algorithm
 {
+    public struct Range
+    {
+        public int min;
+        public int max;
+
+        public Range(int _min, int _max)
+        {
+            min = _min;
+            max = _max;
+        }
+    }
+
     public class Tool
     {
         public static void Swap<T>(ref T a, ref T b)
