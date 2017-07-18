@@ -93,6 +93,14 @@ namespace Algorithm
 
     public class BinaryTree<T>
     {
+        public enum TraverseType
+        {
+            PreOrder,
+            InOrder,
+            PostOrder,
+            LevelOrder
+        }
+
         public delegate void VisitEveryNode(BinaryTreeNode<T> node);
 
         private BinaryTreeNode<T> root;
@@ -199,12 +207,7 @@ namespace Algorithm
                 PreOrderTraverse(node.RChild, visit);
             }
         }
-
-        public void PreOrderTraverse(VisitEveryNode visit)
-        {
-            PreOrderTraverse(Root, visit);
-        }
-
+        
         private void InOrderTraverse(BinaryTreeNode<T> node, VisitEveryNode visit)
         {
             if (node != null)
@@ -214,12 +217,7 @@ namespace Algorithm
                 InOrderTraverse(node.RChild, visit);
             }
         }
-
-        public void InOrderTraverse(VisitEveryNode visit)
-        {
-            InOrderTraverse(Root, visit);
-        }
-
+        
         private void PostOrderTraverse(BinaryTreeNode<T> node, VisitEveryNode visit)
         {
             if (node != null)
@@ -229,13 +227,8 @@ namespace Algorithm
                 visit(node);
             }
         }
-
-        public void PostOrderTraverse(VisitEveryNode visit)
-        {
-            PostOrderTraverse(Root, visit);
-        }
-
-        public void LevelOrderTraverse(VisitEveryNode visit)
+        
+        private void LevelOrderTraverse(VisitEveryNode visit)
         {
             Queue<BinaryTreeNode<T>> queue = new Queue<BinaryTreeNode<T>>();
 
@@ -247,6 +240,17 @@ namespace Algorithm
                 visit(node);
                 if (node.LChild != null) queue.Enqueue(node.LChild);
                 if (node.RChild != null) queue.Enqueue(node.RChild);
+            }
+        }
+
+        public void Traverse(VisitEveryNode visit, TraverseType type)
+        {
+            switch (type)
+            {
+                case TraverseType.PreOrder: PreOrderTraverse(Root, visit); break;
+                case TraverseType.InOrder: InOrderTraverse(Root, visit); break;
+                case TraverseType.PostOrder: PostOrderTraverse(Root, visit); break;
+                case TraverseType.LevelOrder: LevelOrderTraverse(visit); break;
             }
         }
     }
