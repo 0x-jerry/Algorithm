@@ -6,91 +6,6 @@ using System.Threading.Tasks;
 
 namespace Algorithm
 {
-    public class BinaryTreeNode<T>
-    {
-        public enum ChildType
-        {
-            Left, Right
-        }
-
-        private BinaryTreeNode<T> parent;
-        private BinaryTreeNode<T> lChild;
-        private BinaryTreeNode<T> rChild;
-
-        public T Data;
-
-        public BinaryTreeNode<T> LChild
-        {
-            get => lChild;
-            set
-            {
-                lChild = value;
-                if (value != null) value.parent = this;
-            }
-        }
-
-        public BinaryTreeNode<T> RChild
-        {
-            get => rChild;
-            set
-            {
-                rChild = value;
-                if (value != null) value.parent = this;
-            }
-        }
-
-        public BinaryTreeNode<T> Parent { get => parent; }
-
-        public BinaryTreeNode()
-        {
-            LChild = null;
-            RChild = null;
-            Data = default(T);
-        }
-
-        public BinaryTreeNode(T data)
-        {
-            LChild = null;
-            RChild = null;
-            this.Data = data;
-        }
-
-        public BinaryTreeNode(BinaryTreeNode<T> lChild, BinaryTreeNode<T> rChild, T data)
-        {
-            LChild = lChild;
-            RChild = rChild;
-            Data = data;
-        }
-
-        public BinaryTreeNode(BinaryTreeNode<T> parent, BinaryTreeNode<T> lChild, BinaryTreeNode<T> rChild, T data)
-        {
-            this.parent = parent;
-            LChild = lChild;
-            RChild = rChild;
-            Data = data;
-        }
-
-        public int GetTreeDepth()
-        {
-            int lDepth = 0;
-            int rDepth = 0;
-
-            lDepth = LChild == null ? 0 : LChild.GetTreeDepth();
-
-            rDepth = RChild == null ? 0 : RChild.GetTreeDepth();
-
-            return lDepth > rDepth ? lDepth + 1 : rDepth + 1;
-        }
-
-        public BinaryTreeNode<T> GetSibing(ChildType type)
-        {
-            if (Parent == null || this == (type == ChildType.Left ? Parent.LChild : Parent.RChild))
-                return null;
-
-            return type == ChildType.Left ? Parent.lChild : Parent.RChild;
-        }
-    }
-
     public class BinaryTree<T>
     {
         public enum TraverseType
@@ -101,9 +16,9 @@ namespace Algorithm
             LevelOrder
         }
 
-        public delegate void VisitEveryNode(BinaryTreeNode<T> node);
+        public delegate void VisitNode(BinaryTreeNode<T> node);
 
-        private BinaryTreeNode<T> root;
+        protected BinaryTreeNode<T> root;
 
         public BinaryTree()
         {
@@ -143,7 +58,12 @@ namespace Algorithm
             return Root.GetTreeDepth();
         }
 
-        public BinaryTreeNode<T> GetNode(T data)
+        public int GetNodeNumber()
+        {
+            return Root.GetNodeNumber();
+        }
+
+        public virtual BinaryTreeNode<T> GetNode(T data)
         {
             Queue<BinaryTreeNode<T>> queue = new Queue<BinaryTreeNode<T>>();
 
@@ -161,7 +81,7 @@ namespace Algorithm
             return null;
         }
 
-        public void Insert(T data, BinaryTreeNode<T>.ChildType type, BinaryTreeNode<T> insert)
+        public  void Insert(T data, BinaryTreeNode<T>.ChildType type, BinaryTreeNode<T> insert)
         {
             BinaryTreeNode<T> node = GetNode(data);
             if (node != null)
@@ -179,7 +99,7 @@ namespace Algorithm
             }
         }
 
-        public void Insert(T data, BinaryTreeNode<T>.ChildType type, T insertData)
+        public  void Insert(T data, BinaryTreeNode<T>.ChildType type, T insertData)
         {
             BinaryTreeNode<T> node = GetNode(data);
             if (node != null)
@@ -198,7 +118,9 @@ namespace Algorithm
             }
         }
 
-        private void PreOrderTraverse(BinaryTreeNode<T> node, VisitEveryNode visit)
+        #region Traverse
+
+        private  void PreOrderTraverse(BinaryTreeNode<T> node, VisitNode visit)
         {
             if (node != null)
             {
@@ -207,8 +129,8 @@ namespace Algorithm
                 PreOrderTraverse(node.RChild, visit);
             }
         }
-        
-        private void InOrderTraverse(BinaryTreeNode<T> node, VisitEveryNode visit)
+
+        private void InOrderTraverse(BinaryTreeNode<T> node, VisitNode visit)
         {
             if (node != null)
             {
@@ -217,8 +139,8 @@ namespace Algorithm
                 InOrderTraverse(node.RChild, visit);
             }
         }
-        
-        private void PostOrderTraverse(BinaryTreeNode<T> node, VisitEveryNode visit)
+
+        private void PostOrderTraverse(BinaryTreeNode<T> node, VisitNode visit)
         {
             if (node != null)
             {
@@ -227,8 +149,8 @@ namespace Algorithm
                 visit(node);
             }
         }
-        
-        private void LevelOrderTraverse(VisitEveryNode visit)
+
+        private void LevelOrderTraverse(VisitNode visit)
         {
             Queue<BinaryTreeNode<T>> queue = new Queue<BinaryTreeNode<T>>();
 
@@ -243,7 +165,7 @@ namespace Algorithm
             }
         }
 
-        public void Traverse(VisitEveryNode visit, TraverseType type)
+        public void Traverse(VisitNode visit, TraverseType type)
         {
             switch (type)
             {
@@ -253,5 +175,7 @@ namespace Algorithm
                 case TraverseType.LevelOrder: LevelOrderTraverse(visit); break;
             }
         }
+
+        #endregion
     }
 }
