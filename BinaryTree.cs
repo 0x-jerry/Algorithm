@@ -81,7 +81,7 @@ namespace Algorithm
             return null;
         }
 
-        public  void Insert(T data, BinaryTreeNode<T>.ChildType type, BinaryTreeNode<T> insert)
+        public void Insert(T data, BinaryTreeNode<T>.ChildType type, BinaryTreeNode<T> insert)
         {
             BinaryTreeNode<T> node = GetNode(data);
             if (node != null)
@@ -99,7 +99,7 @@ namespace Algorithm
             }
         }
 
-        public  void Insert(T data, BinaryTreeNode<T>.ChildType type, T insertData)
+        public void Insert(T data, BinaryTreeNode<T>.ChildType type, T insertData)
         {
             BinaryTreeNode<T> node = GetNode(data);
             if (node != null)
@@ -118,9 +118,60 @@ namespace Algorithm
             }
         }
 
+        public virtual void Delete(T data)
+        {
+            BinaryTreeNode<T> delNode = GetNode(data);
+            if (delNode == null) return;
+            if (delNode.LChild == null && delNode.RChild == null)
+            {
+                if (delNode.Parent == null)
+                    root = null;
+                else
+                {
+                    if (delNode.Parent.LChild == delNode) delNode.Parent.LChild = null;
+                    else delNode.Parent.RChild = null;
+                }
+                return;
+            }
+
+            BinaryTreeNode<T> delParentNode = delNode.Parent;
+            BinaryTreeNode<T> maxNode = delNode.LChild;
+
+            if (maxNode == null)
+            {
+                maxNode = delNode.RChild;
+            }
+            else
+            {
+                if (maxNode.RChild != null)
+                {
+                    while (maxNode.RChild != null)
+                    {
+                        maxNode = maxNode.RChild;
+                    }
+                }
+
+                if (maxNode.Parent.LChild == maxNode) maxNode.Parent.LChild = maxNode.LChild;
+                else maxNode.Parent.RChild = maxNode.LChild;
+            }
+
+            maxNode.RChild = delNode.RChild;
+            maxNode.LChild = delNode.LChild;
+
+            if (delParentNode == null)
+            {
+                root = maxNode;
+            }
+            else
+            {
+                if (delParentNode.LChild == delNode) delParentNode.LChild = maxNode;
+                else delParentNode.RChild = maxNode;
+            }
+        }
+      
         #region Traverse
 
-        private  void PreOrderTraverse(BinaryTreeNode<T> node, VisitNode visit)
+        private void PreOrderTraverse(BinaryTreeNode<T> node, VisitNode visit)
         {
             if (node != null)
             {

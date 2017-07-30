@@ -41,7 +41,7 @@ namespace Algorithm
             }
         }
 
-        public BinaryTreeNode<T> Parent { get => parent; }
+        public BinaryTreeNode<T> Parent { get => parent; set => parent = value; }
 
         public BinaryTreeNode()
         {
@@ -88,6 +88,13 @@ namespace Algorithm
             if (RChild != null) num += RChild.GetNodeNumber();
 
             return num;
+        }
+
+        public int GetBalance()
+        {
+            int lDepth = LChild == null ? 0 : LChild.GetTreeDepth();
+            int rDepth = RChild == null ? 0 : RChild.GetTreeDepth();
+            return lDepth - rDepth;
         }
 
         public BinaryTreeNode<T> GetSibing(ChildType type)

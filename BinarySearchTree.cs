@@ -28,7 +28,51 @@ namespace Algorithm
             }
         }
 
-        public void Insert(T data)
+        private void RotateRight(BinaryTreeNode<T> root, BinaryTreeNode<T> pivot)
+        {
+            if (root.Parent != null)
+            {
+                if (root.Parent.LChild == root)
+                {
+                    root.Parent.LChild = pivot;
+                }
+                else
+                {
+                    root.Parent.RChild = pivot;
+                }
+            }
+            else
+            {
+                this.root = pivot;
+                pivot.Parent = null;
+            }
+            root.LChild = pivot.RChild;
+            pivot.RChild = root;
+        }
+
+        private void RotateLeft(BinaryTreeNode<T> root, BinaryTreeNode<T> pivot)
+        {
+            if (root.Parent != null)
+            {
+                if (root.Parent.LChild == root)
+                {
+                    root.Parent.LChild = pivot;
+                }
+                else
+                {
+                    root.Parent.RChild = pivot;
+                }
+            }
+            else
+            {
+                this.root = pivot;
+                pivot.Parent = null;
+            }
+            root.RChild = pivot.LChild;
+            pivot.LChild = root;
+        }
+
+        public void AddNode(T data)
         {
             BinaryTreeNode<T> node = Root;
             BinaryTreeNode<T> insertNode = new BinaryTreeNode<T>(data);
@@ -67,46 +111,46 @@ namespace Algorithm
                 }
                 else break;
             }
+
+            Balance(insertNode);
         }
 
-        public void Delete(T data)
+        private void Balance(BinaryTreeNode<T> insertNode)
         {
-            BinaryTreeNode<T> delNode = GetNode(data);
-            if (delNode == null) return;
-
-            BinaryTreeNode<T> delParentNode = delNode.Parent;
-            BinaryTreeNode<T> maxNode = delNode.LChild;
-
-            if (maxNode == null)
+            BinaryTreeNode<T> balanceRoot = insertNode;
+            BinaryTreeNode<T> balancePivot = balanceRoot;
+            while (balanceRoot.Parent != null)
             {
-                maxNode = delNode.RChild;
-            }
-            else
-            {
-                if (maxNode.RChild != null)
+                balancePivot = balanceRoot;
+                balanceRoot = balanceRoot.Parent;
+                if (balanceRoot.GetBalance() == 2 && balancePivot.GetBalance() == 1)
                 {
-                    while (maxNode.RChild != null)
-                    {
-                        maxNode = maxNode.RChild;
-                    }
+                    RotateRight(balanceRoot, balancePivot);
+                    break;
                 }
-
-                if (maxNode.Parent.LChild == maxNode) maxNode.Parent.LChild = maxNode.LChild;
-                else maxNode.Parent.RChild = maxNode.LChild;
+                else if (balanceRoot.GetBalance() == -2 && balancePivot.GetBalance() == -1)
+                {
+                    RotateLeft(balanceRoot, balancePivot);
+                    break;
+                }
+                else if (balanceRoot.GetBalance() == 2 && balancePivot.GetBalance() == -1)
+                {
+                    RotateLeft(balancePivot, balancePivot.RChild);
+                    RotateRight(balanceRoot, balanceRoot.LChild);
+                    break;
+                }
+                else if (balanceRoot.GetBalance() == -2 && balancePivot.GetBalance() == 1)
+                {
+                    RotateRight(balancePivot, balancePivot.LChild);
+                    RotateLeft(balanceRoot, balanceRoot.RChild);
+                    break;
+                }
             }
+        }
 
-            maxNode.RChild = delNode.RChild;
-            maxNode.LChild = delNode.LChild;
-
-            if (delParentNode == null)
-            {
-                root = maxNode;
-            }
-            else
-            {
-                if (delParentNode.LChild == delNode) delParentNode.LChild = maxNode;
-                else delParentNode.RChild = maxNode;
-            }
+        public override void Delete(T data)
+        {
+            base.Delete(data);
         }
     }
 }
