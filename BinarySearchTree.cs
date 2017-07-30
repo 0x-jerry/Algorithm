@@ -28,39 +28,32 @@ namespace Algorithm
             }
         }
 
-        private void RotateRight(BinaryTreeNode<T> root, BinaryTreeNode<T> pivot)
+        private BinaryTreeNode<T> FindMinNode(BinaryTreeNode<T> root)
         {
-            if (root.Parent != null)
-            {
-                if (root.Parent.LChild == root)
-                {
-                    root.Parent.LChild = pivot;
-                }
-                else
-                {
-                    root.Parent.RChild = pivot;
-                }
-            }
-            else
-            {
-                this.root = pivot;
-                pivot.Parent = null;
-            }
-            root.LChild = pivot.RChild;
-            pivot.RChild = root;
+            var minNode = root;
+            while (minNode.LChild != null) minNode = minNode.LChild;
+            return minNode;
         }
 
-        private void RotateLeft(BinaryTreeNode<T> root, BinaryTreeNode<T> pivot)
+        private BinaryTreeNode<T> FindMaxNode(BinaryTreeNode<T> root)
         {
-            if (root.Parent != null)
+            var maxNode = root;
+            while (maxNode.RChild != null) maxNode = maxNode.RChild;
+            return maxNode;
+        }
+
+        private void RotateRight(BinaryTreeNode<T> node)
+        {
+            var pivot = node.LChild;
+            if (node.Parent != null)
             {
-                if (root.Parent.LChild == root)
+                if (node.Parent.LChild == node)
                 {
-                    root.Parent.LChild = pivot;
+                    node.Parent.LChild = pivot;
                 }
                 else
                 {
-                    root.Parent.RChild = pivot;
+                    node.Parent.RChild = pivot;
                 }
             }
             else
@@ -68,8 +61,31 @@ namespace Algorithm
                 this.root = pivot;
                 pivot.Parent = null;
             }
-            root.RChild = pivot.LChild;
-            pivot.LChild = root;
+            node.LChild = pivot.RChild;
+            pivot.RChild = node;
+        }
+
+        private void RotateLeft(BinaryTreeNode<T> node)
+        {
+            var pivot = node.RChild;
+            if (node.Parent != null)
+            {
+                if (node.Parent.LChild == node)
+                {
+                    node.Parent.LChild = pivot;
+                }
+                else
+                {
+                    node.Parent.RChild = pivot;
+                }
+            }
+            else
+            {
+                this.root = pivot;
+                pivot.Parent = null;
+            }
+            node.RChild = pivot.LChild;
+            pivot.LChild = node;
         }
 
         public void AddNode(T data)
@@ -112,45 +128,79 @@ namespace Algorithm
                 else break;
             }
 
-            Balance(insertNode);
+            while (insertNode.Parent != null)
+            {
+                insertNode = insertNode.Parent;
+                BalanceNode(insertNode);
+            }
         }
 
-        private void Balance(BinaryTreeNode<T> insertNode)
+        private void BalanceNode(BinaryTreeNode<T> node)
         {
-            BinaryTreeNode<T> balanceRoot = insertNode;
-            BinaryTreeNode<T> balancePivot = balanceRoot;
-            while (balanceRoot.Parent != null)
+            if (node.GetBalance() == 2)
             {
-                balancePivot = balanceRoot;
-                balanceRoot = balanceRoot.Parent;
-                if (balanceRoot.GetBalance() == 2 && balancePivot.GetBalance() == 1)
+                if (node.LChild.GetBalance() > 0) RotateRight(node);
+                else
                 {
-                    RotateRight(balanceRoot, balancePivot);
-                    break;
+                    RotateLeft(node.LChild);
+                    RotateRight(node);
                 }
-                else if (balanceRoot.GetBalance() == -2 && balancePivot.GetBalance() == -1)
+            }
+            else if (node.GetBalance() == -2)
+            {
+                if (node.RChild.GetBalance() < 0) RotateLeft(node);
+                else
                 {
-                    RotateLeft(balanceRoot, balancePivot);
-                    break;
-                }
-                else if (balanceRoot.GetBalance() == 2 && balancePivot.GetBalance() == -1)
-                {
-                    RotateLeft(balancePivot, balancePivot.RChild);
-                    RotateRight(balanceRoot, balanceRoot.LChild);
-                    break;
-                }
-                else if (balanceRoot.GetBalance() == -2 && balancePivot.GetBalance() == 1)
-                {
-                    RotateRight(balancePivot, balancePivot.LChild);
-                    RotateLeft(balanceRoot, balanceRoot.RChild);
-                    break;
+                    RotateRight(node.RChild);
+                    RotateLeft(node);
                 }
             }
         }
 
         public override void Delete(T data)
         {
-            base.Delete(data);
+            Delete(Root, data);
         }
+
+        private void Delete(BinaryTreeNode<T> node, T data)
+        {
+            if (node == null) return;
+            else if (data.CompareTo(node.Data) < 0) Delete(node.LChild, data);
+            else if (data.CompareTo(node.Data) > 0) Delete(node.RChild, data);
+            else if (node.LChild != null && node.RChild != null)
+            {
+                BinaryTreeNode<T> minNode = FindMinNode(node.RChild);
+                node.Data = minNode.Data;
+                Delete(node.RChild, node.Data);
+            }
+            else
+            {
+                if (node.LChild != null && node.RChild == null)
+                {
+                    BinaryTreeNode<T> minNode = FindMaxNode(node.LChild);
+                    node.Data = minNode.Data;
+                    Delete(node.LChild, node.Data);
+                }
+                else if (node.LChild == null && node.RChild != null)
+                {
+                    BinaryTreeNode<T> minNode = FindMinNode(node.RChild);
+                    node.Data = minNode.Data;
+                    Delete(node.RChild, node.Data);
+                }
+                else
+                {
+                    if (node.Parent != null)
+                    {
+                        if (node.Parent.LChild == node) node.Parent.LChild = null;
+                        else node.Parent.RChild = null;
+                    }
+                    node = null;
+                }
+            }
+
+            if (node != null)
+                BalanceNode(node);
+        }
+
     }
 }

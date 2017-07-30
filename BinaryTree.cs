@@ -120,7 +120,11 @@ namespace Algorithm
 
         public virtual void Delete(T data)
         {
-            BinaryTreeNode<T> delNode = GetNode(data);
+            Delete(GetNode(data));
+        }
+
+        protected virtual void Delete(BinaryTreeNode<T> delNode)
+        {
             if (delNode == null) return;
             if (delNode.LChild == null && delNode.RChild == null)
             {
@@ -168,7 +172,7 @@ namespace Algorithm
                 else delParentNode.RChild = maxNode;
             }
         }
-      
+
         #region Traverse
 
         private void PreOrderTraverse(BinaryTreeNode<T> node, VisitNode visit)
