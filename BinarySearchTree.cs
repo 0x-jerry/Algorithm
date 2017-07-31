@@ -159,7 +159,49 @@ namespace Algorithm
 
         public override void Delete(T data)
         {
-            Delete(Root, data);
+            Delete(GetNode(data));
+        }
+
+        protected override void Delete(BinaryTreeNode<T> node)
+        {
+            BinaryTreeNode<T> breakBalanceNode = null;
+
+            if (node.RChild != null)
+            {
+                BinaryTreeNode<T> minNode = FindMinNode(node.RChild);
+
+                breakBalanceNode = minNode.Parent;
+
+                node.Data = minNode.Data;
+
+                if (minNode.Parent == node)
+                {
+                    node.RChild = minNode.RChild;
+                }
+                else
+                {
+                    minNode.Parent.LChild = null;
+                }
+            }
+            else
+            {
+                if (node.Parent != null)
+                {
+                    breakBalanceNode = node.Parent;
+
+                    if (node.Parent.RChild.Equals(node)) node.Parent.RChild = node.LChild;
+                    else node.Parent.LChild = node.LChild;
+                }
+                else
+                    root = node.LChild;
+
+            }
+
+            while (breakBalanceNode != null)
+            {
+                BalanceNode(breakBalanceNode);
+                breakBalanceNode = breakBalanceNode.Parent;
+            }
         }
 
         private void Delete(BinaryTreeNode<T> node, T data)
@@ -201,6 +243,5 @@ namespace Algorithm
             if (node != null)
                 BalanceNode(node);
         }
-
     }
 }
